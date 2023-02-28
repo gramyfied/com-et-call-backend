@@ -1,5 +1,32 @@
 const mongoose = require("mongoose");
 
+const etablissementSchema = mongoose.Schema({
+  type: String,
+  nom: String,
+});
+
+const enfantSchema = mongoose.Schema({
+  prenom: String,
+  etablissement: etablissementSchema,
+});
+
+const typeOrganismeSchema = mongoose.Schema({
+  nom: String,
+});
+
+const problematiqueSchema = mongoose.Schema({
+  titre: String,
+  description: String,
+  typeEtablissement: String,
+  organismes: typeOrganismeSchema,
+});
+
+const historiqueSchema = mongoose.Schema({
+  problematique: problematiqueSchema,
+  enfant: enfantSchema,
+  date: Date,
+});
+
 const userSchema = mongoose.Schema({
   nom: String,
   prenom: String,
@@ -7,18 +34,9 @@ const userSchema = mongoose.Schema({
   token: String,
   email: String,
   tel: String,
-  historiques: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Historique",
-    },
-  ],
-  enfants: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Enfant",
-    },
-  ],
+  
+  enfants: [enfantSchema],
+  historiques: [historiqueSchema],
 });
 
 const User = mongoose.model("User", userSchema);

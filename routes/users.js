@@ -81,4 +81,45 @@ router.delete("/:id", (req, res) => {
   });
 });
 
+router.post("/:parentId/enfants", (req, res) => {
+  User.updateOne({
+    _id: req.params.parentId
+  }, { $push: { enfants: req.body } }).then((updatedDoc) => {
+    if (updatedDoc.modifiedCount > 0) {
+      res.json({ result: true });
+    } else {
+      res.status(500).json({ result: false, error: "Error adding enfant" });
+    }
+  });
+});
+
+router.delete("/:parentId/enfants/:enfantId", (req, res) => {
+  User.updateOne(
+    {
+      _id: req.params.parentId,
+    },
+    { $pull: { enfants: { _id: req.params.enfantId } } }
+  ).then((deletedDoc) => {
+    if (deletedDoc.matchedCount > 0) {
+      res.json({ result: true, result: deletedDoc });
+    } else {
+      res.status(500).json({ result: false, error: "Error deleting enfant" });
+    }
+  });
+});
+
+router.put("/:parentId/enfants/:enfantId", (req, res) => {
+  const parent = User.findById(req.params.parentId)
+                    .then((data) => {
+                      const enfant = data.enfants.id(req.params.enfantId);
+                      enfant.prenom = req.body.prenom;
+                      enfant.etablissement = req.body.etablissement;
+
+                      enfant.save().then(savedEnfant => res.json({ result: true, result: data }))
+                                  .catch(error => res.json({ result: false, result: error }));
+                    }).catch(error => {
+                      res.status(500).json({ result: false, result: error });
+                    });
+});
+
 module.exports = router;
